@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 
 st.set_page_config(page_title="موسوعة صحيح البخاري", page_icon="📖", layout="centered")
 
@@ -14,9 +15,6 @@ h1 {
     font-size: 20px !important;
     text-align: center;
     color: #00796b;
-}
-p, .stSelectbox label {
-    font-size: 12px !important;
 }
 .hadith-box {
     background-color: #ffffff;
@@ -39,29 +37,26 @@ p, .stSelectbox label {
 </style>
 """, unsafe_allow_html=True)
 
-# قاعدة بيانات مصغرة ومباشرة للأحاديث لضمان ظهورها فوراً على الجوال
-bukhari_data = {
-    "الصيام": [
-        {"id": 1, "narrator": "أبو هريرة رضي الله عنه", "text": "قال رسول الله صلى الله عليه وسلم: «الصيام جُنَّة، فلا يرفث ولا يجهل، وإن امرؤ قاتله أو شاتمه فليقل: إني صائم مرتين»."},
-        {"id": 2, "narrator": "عائشة رضي الله عنها", "text": "كان رسول الله صلى الله عليه وسلم يصوم حتى نقول لا يفطر، ويفطر حتى نقول لا يصوم."}
-    ],
-    "الصلاة": [
-        {"id": 3, "narrator": "عمر بن الخطاب رضي الله عنه", "text": "سمعت رسول الله صلى الله عليه وسلم يقول: «إنما الأعمال بالنيات، وإنما لكل امرئ ما نَوَى»."},
-        {"id": 4, "narrator": "أبو هريرة رضي الله عنه", "text": "أتي النبي صلى الله عليه وسلم برجل قد شرب فقال: اضربوه."}
-    ],
-    "الوضوء": [
-        {"id": 5, "narrator": "حمران مولى عثمان", "text": "أن عثمان بن عفان رضي الله عنه دعا بتور ففرغ على كفيكه ثلاث مرار فغسلهما..."}
-    ]
-}
+st.title("📖 صحيح البخاري المختار")
+st.write("الأحاديث النبوية الشريفة المختارة بعناية:")
 
-st.title("📖 صحيح البخاري الشامل")
-st.write("اختر الباب لعرض الأحاديث مباشرة:")
+# قراءة الأحاديث من ملف خارجي لتتحكم بها وحدك
+def load_hadiths():
+    hadiths = []
+    if os.path.exists("hadiths.txt"):
+        with open("hadiths.txt", "r", encoding="utf-8") as f:
+            content = f.read().split("---") # الفاصل بين كل حديث والآخر
+            for block in content:
+                lines = [line.strip() for line in block.strip().split("\n") if line.strip()]
+                if len(lines) >= 3:
+                    hadiths.اتھاض={"id": lines[0], "narrator": lines[1], "text": "\n".join(lines[2:])}
+                    hadiths.append(h)
+    return hadiths
 
-selected_cat = st.selectbox("الأبواب الفقهية:", ["اختر الباب..."] + list(bukhari_data.keys()))
+hadiths_list = load_hadiths()
 
-if selected_cat in bukhari_data:
-    st.subheader(f"أحاديث باب: {selected_cat}")
-    for h in bukhari_data[selected_cat]:
+if hadiths_list:
+    for h in hadiths_list:
         st.markdown(f"""
         <div class="hadith-box">
             <div class="hadith-meta">حديث رقم: {h['id']} | الراوي: {h['narrator']}</div>
@@ -69,4 +64,4 @@ if selected_cat in bukhari_data:
         </div>
         """, unsafe_allow_html=True)
 else:
-    st.info("يرجى اختيار باب من القائمة أعلاه لعرض الأحاديث.")
+    st.info("لم يتم إضافة أي أحاديث حتى الآن. قم بإنشاء ملف hadiths.txt لإضافة الأحاديث.")
