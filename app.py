@@ -7,7 +7,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# تنسيق CSS احترافي وألوان أنيقة تناسب الجوال
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
@@ -70,14 +69,11 @@ h1 {
 </style>
 """, unsafe_allow_html=True)
 
-# رأس الصفحة
 st.markdown("<h1>✨ أحاديث عن النبي عليه افضل الصلاة والسلام</h1>", unsafe_allow_html=True)
 st.markdown('<div class="sub-title">منصة جامعة للأحاديث النبوية الصحيحة والأذكار</div>', unsafe_allow_html=True)
 
-# قراءة الأحاديث من ملف hadith.txt (أو hadiths.txt)
 def load_hadiths():
     hadiths = []
-    # البحث عن أي من الاسمين لضمان عدم حدوث خطأ
     filename = "hadith.txt" if os.path.exists("hadith.txt") else "hadiths.txt"
     
     if os.path.exists(filename):
@@ -85,7 +81,7 @@ def load_hadiths():
             content = f.read().split("---")
             for block in content:
                 lines = [line.strip() for line in block.strip().split("\n") if line.strip()]
-                if len(lines) >= 4:  # [القسم، الرقم، الراوي، النص]
+                if len(lines) >= 4:
                     h = {
                         "category": lines[0],
                         "id": lines[1],
@@ -97,11 +93,9 @@ def load_hadiths():
 
 all_hadiths = load_hadiths()
 
-# تهيئة قائمة المحفوظات في الذاكرة المؤقتة للجلسة
 if 'saved_hadiths' not in st.session_state:
     st.session_state.saved_hadiths = []
 
-# الأقسام الرئيسية
 categories = [
     "الرئيسية (كل الأحاديث)",
     "🌙 احاديث عن النوم",
@@ -114,18 +108,22 @@ categories = [
 
 selected_tab = st.selectbox("📂 اختر القسم للتصفح:", categories)
 
-# الفلترة حسب القسم المختاره
 filtered_hadiths = []
 if selected_tab == "الرئيسية (كل الأحاديث)":
     filtered_hadiths = all_hadiths
 elif selected_tab == "⭐ الأحاديث المحفوظة":
     filtered_hadiths = st.session_state.saved_hadiths
 else:
-    # استخراج اسم القسم بدون الرموز التعبيرية للمطابقة
-    cat_name = selected_tab.split(" ")[1] if " " in selected_tab else selected_tab
-    filtered_hadiths = [h for h in all_hadiths if cat_name in h['category']]
+    # مطعمّة للبحث الذكي عن الكلمة بغض النظر عن الرموز
+    keyword = ""
+    if "النوم" in selected_tab: keyword = "النوم"
+    elif "الاكل" in selected_tab or "الأكل" in selected_tab: keyword = "الاكل"
+    elif "الصوم" in selected_tab: keyword = "الصوم"
+    elif "الصلاة" in selected_tab: keyword = "الصلاة"
+    elif "اذكار" in selected_tab or "أذكار" in selected_tab: keyword = "اذكار"
+    
+    filtered_hadiths = [h for h in all_hadiths if keyword in h['category']]
 
-# عرض الأحاديث
 if filtered_hadiths:
     st.write(f"عدد الأحاديث المعروضة: **{len(filtered_hadiths)}**")
     for i, h in enumerate(filtered_hadiths):
@@ -136,7 +134,6 @@ if filtered_hadiths:
         </div>
         """, unsafe_allow_html=True)
         
-        # زر حفظ الحديث
         save_key = f"save_{h['category']}_{h['id']}_{i}"
         is_saved = h in st.session_state.saved_hadiths
         
@@ -152,12 +149,9 @@ if filtered_hadiths:
                 st.warning("تمت إزالة الحديث من المحفوظات.")
                 st.rerun()
 else:
-    if selected_tab == "⭐ الأحاديث المحفوظة":
-        st.info("لم تقم بحفظ أي حديث حتى الآن. اضغط على زر 'حفظ هذا الحديث' ليظهر هنا.")
-    else:
-        st.info("لا توجد أحاديث مضافة في هذا القسم حالياً. قم بإضافتها عبر ملف النصوص في GitHub.")
+    # تم إزالة الرسالة الزرقاء نهائياً بناءً على طلبك، ولن تظهر أي رسالة مزعجة
+    pass
 
-# التوقيع في الأسفل
 st.markdown("""
 <div class="footer">
     تم التصميم والطباعة بواسطة: <b>أحمد رحال</b> ✨
